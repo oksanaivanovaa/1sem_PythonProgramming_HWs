@@ -18,8 +18,6 @@ def addBorder(a):
     return [b] + a + [b]
 
 
-
-
 def shorting(e):
     s = ''
     e_new = []
@@ -31,19 +29,19 @@ def shorting(e):
 
 
 def competition(e, k):
+    res = 0
     if e[k] != 0:
         res = k+1
-        for i in range(k+1,len(e)-1):
+        for i in range(k+1, len(e)-1):
             if e[i] == e[k]:
                 res += 1
             else:
                 break
     else:
-        res = 0
-        for el in e:
-            if el != 0:
-                res += 1
-            break
+        for i in range(k-1, -1, -1):
+            if e[i] != 0:
+                res = i+1
+                break
     return res
 
 
@@ -51,8 +49,9 @@ def goodPairs(a, b):
     s = []
     for i in a:
         for j in b:
-            if (i*j) % (i+j) == 0:
-                s.append(i**2 + j**2)
+            if (i+j) != 0:
+                if (i*j) % (i+j) == 0:
+                    s.append(i**2 + j**2)
     return sorted(s)
 
 
@@ -87,7 +86,7 @@ if __name__ == "__main__":
 
     assert competition([5, 4, 3, 2, 1], 2) == 3, \
         "competition error"
-    assert competition([1, 0, 0, 0], 3) == 1, \
+    assert competition([0, 0, 0, 0], 0) == 0, \
         "competition error"
     assert competition([10, 9, 8, 7, 7, 7, 5, 5], 4) == 6, \
         "competition error"

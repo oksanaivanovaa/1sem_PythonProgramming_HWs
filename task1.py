@@ -21,8 +21,9 @@ def mex(e):
 def frequencyDict(s):
     d = {}
     for el in set(s):
-       d[el] = list(s).count(el)
+        d[el] = list(s).count(el)
     return d
+
 
 if __name__ == "__main__":
 
@@ -32,7 +33,8 @@ if __name__ == "__main__":
     print("unique func. - OK")
 
     assert transposeDict({}) == {}, "transposeDict doesn't work"
-    assert transposeDict({1: 'a', 2: 'b'}) == {'a': 1, 'b': 2}, "transposeDict doesn't work"
+    assert transposeDict({1: 'a', 2: 'b'}) == {'a': 1, 'b': 2}, \
+        "transposeDict doesn't work"
     assert transposeDict({1: 1}) == {1: 1}, "transposeDict doesn't work"
     print("transposeDict func. - OK")
 
@@ -42,5 +44,6 @@ if __name__ == "__main__":
     print("mex func. - OK")
 
     assert frequencyDict('') == {}, "frequencyDict doesn't work"
-    assert frequencyDict('abacaba') == {'a': 4, 'b': 2, 'c': 1}, "frequencyDict doesn't work"
+    assert frequencyDict('abacaba') == {'a': 4, 'b': 2, 'c': 1}, \
+        "frequencyDict doesn't work"
     print("frequencyDict func. - OK")

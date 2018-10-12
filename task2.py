@@ -32,7 +32,7 @@ def competition(e, k):
     res = 0
     if e[k] != 0:
         res = k+1
-        for i in range(k+1, len(e)-1):
+        for i in range(k+1, len(e)):
             if e[i] == e[k]:
                 res += 1
             else:
@@ -47,8 +47,8 @@ def competition(e, k):
 
 def goodPairs(a, b):
     s = []
-    for i in a:
-        for j in b:
+    for i in set(a):
+        for j in set(b):
             if (i+j) != 0:
                 if (i*j) % (i+j) == 0:
                     s.append(i**2 + j**2)
@@ -89,6 +89,8 @@ if __name__ == "__main__":
     assert competition([0, 0, 0, 0], 0) == 0, \
         "competition error"
     assert competition([10, 9, 8, 7, 7, 7, 5, 5], 4) == 6, \
+        "competition error"
+    assert competition([9, 7, 4, 1, 1], 3) == 5, \
         "competition error"
     print("competition - OK")
 

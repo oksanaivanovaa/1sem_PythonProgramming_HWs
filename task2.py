@@ -52,8 +52,9 @@ def goodPairs(a, b):
             if (i+j) != 0:
                 if (i*j) % (i+j) == 0:
                     s.append(i**2 + j**2)
-    return sorted(s)
+    return sorted(set(s))
 
+print(goodPairs([16, 25, 45, 30], [30, 16, 34, 45, 30]))
 
 def makeShell(n):
     res = []

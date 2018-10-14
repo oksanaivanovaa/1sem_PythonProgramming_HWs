@@ -54,7 +54,6 @@ def goodPairs(a, b):
                     s.append(i**2 + j**2)
     return sorted(set(s))
 
-print(goodPairs([16, 25, 45, 30], [30, 16, 34, 45, 30]))
 
 def makeShell(n):
     res = []
@@ -82,7 +81,7 @@ if __name__ == "__main__":
 
     assert shorting(['word', 'localization', 'internationalization',
                      'pneumonoultramicroscopicsilicovolcanoconiosis']) == \
-           ['word', 'l10n', 'i18n', 'p43s'], "shorting error"
+        ['word', 'l10n', 'i18n', 'p43s'], "shorting error"
     print("shorting - OK")
 
     assert competition([5, 4, 3, 2, 1], 2) == 3, \

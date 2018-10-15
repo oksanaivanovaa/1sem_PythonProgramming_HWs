@@ -55,14 +55,15 @@ def unorderedpartitions(n):
         if sum(pref) == n:
             yield tuple(pref)
         else:
-            for i in range(1, n+1):
-                if len(pref) > 0:
-                    if sum(pref) < n and pref[-1] <= i:
-                        yield from gen_par(n, pref + [i])
-                else:
+            if len(pref) > 0:
+                en = pref[-1]
+            else:
+                en = 1
+            for i in range(en, n-en+2):
+                if sum(pref)+i <= n:
                     yield from gen_par(n, pref + [i])
 
-    return(list(gen_par(n)))
+    return list(gen_par(n))
 
 
 if __name__ == "__main__":

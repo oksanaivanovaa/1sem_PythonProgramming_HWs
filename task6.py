@@ -6,7 +6,7 @@ def getdimension(a):
 
 
 def getdiagonal(a):
-    return np.array([a[i, i] for i in range(len(a))])
+    return np.diagonal(a)
 
 
 def cutarray(a, minvalue, maxvalue):
@@ -18,7 +18,7 @@ def getmoments(a):
 
 
 def getdotproduct(a, b):
-    return sum(a[i]*b[i] for i in range(len(a)))
+    return np.dot(a, b)
 
 
 def checkequal(a, b):
@@ -37,9 +37,13 @@ def matrixdet(a):
     return np.linalg.det(a)
 
 
-def getones(n, k):
+'''def getones(n, k):
     return np.array([1 if i % n-i//n == k else 0 for i in range(n*n)],
-                    float).reshape(n, n)
+                    float).reshape(n, n)'''
+
+
+def getones(n, k):
+    return np.eye(n, k=k)
 
 
 if __name__ == "__main__":

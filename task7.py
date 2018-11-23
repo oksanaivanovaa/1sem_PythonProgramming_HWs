@@ -20,6 +20,15 @@ def powers(n, m):
 
 def subpalindrome(s):
     pal = s[0]
+
+    def lex(s1, s2):
+        b = True
+        for i in range(len(s1)//2+1):
+            if s1[i] > s2[i]:
+                b = False
+                break
+        return b
+
     for i in range(len(s)-1):
         for j in range(len(s)-1, i, -1):
             if s[i] == s[j]:
@@ -31,6 +40,8 @@ def subpalindrome(s):
                 if boool:
                     if len(pal) < len(s[i:j+1]):
                         pal = s[i:j+1]
+                    elif len(pal) == len(s[i:j+1]) and not lex(pal, s[i:j+1]):
+                        pal = s[i:j + 1]
     return pal
 
 
@@ -48,82 +59,74 @@ def isIPv4(s):
 
 
 def pascals():
-
-    def pas():
-        for count in itertools.count(0):
-            line = []
-            for element in range(count + 1):
-                line.append(int((math.factorial(count)) //
-                                ((math.factorial(element)) *
-                                math.factorial(count - element))))
-            yield tuple(line)
-
-    return list(pas())
+    for count in itertools.count(0):
+        line = []
+        for element in range(count + 1):
+            line.append(int((math.factorial(count)) //
+                            ((math.factorial(element)) *
+                            math.factorial(count - element))))
+        yield tuple(line)
 
 
 def fibonacci(n):
     return list(reduce(lambda x, n: [x[1], x[0]+x[1]], range(n), [0, 1]))[0]
 
 
-def brackets2(n, m):
+def brackets2(n, m, pref='', bal1=0, bal2=0, count1=0, count2=0, sum_bal=0):
 
-    def gen_n(n, m, pref='', bal1=0, bal2=0, count1=0, count2=0, sum_bal=0):
-
-        def norm(pref):
-            stack = []
-            for el in pref:
-                if not stack:
-                    stack.append(el)
-                else:
-                    if stack[-1] == '(':
-                        if el == ')':
-                            stack.pop()
-                        else:
-                            stack.append(el)
-                    elif stack[-1] == '[':
-                        if el == ']':
-                            stack.pop()
-                        else:
-                            stack.append(el)
+    def norm(pref):
+        stack = []
+        for el in pref:
+            if not stack:
+                stack.append(el)
+            else:
+                if stack[-1] == '(':
+                    if el == ')':
+                        stack.pop()
                     else:
                         stack.append(el)
-            return False if stack else True
+                elif stack[-1] == '[':
+                    if el == ']':
+                        stack.pop()
+                    else:
+                        stack.append(el)
+                else:
+                    stack.append(el)
+        return False if stack else True
 
-        if len(pref) == 2 * n + 2*m and bal1 == bal2 == 0 \
-                and count1 == n and count2 == m and norm(pref):
-            yield pref
-        else:
-            for i in ('(', ')', '[', ']'):
-                new_bal1 = bal1
-                new_bal2 = bal2
-                new_count1 = count1
-                new_count2 = count2
-                if len(pref) >= n + m:
-                    new_sum_bal = sum_bal - (new_bal1 - new_bal2)
-                else:
-                    new_sum_bal = n+m
-                if i == '(':
-                    new_pref = pref + i
-                    new_bal1 = bal1 + 1
-                    new_count1 += 1
-                elif i == ')':
-                    new_pref = pref + i
-                    new_bal1 = bal1 - 1
-                elif i == '[':
-                    new_pref = pref + i
-                    new_bal2 = bal2 + 1
-                    new_count2 += 1
-                else:
-                    new_pref = pref + i
-                    new_bal2 = bal2 - 1
-                if (len(new_pref) <= 2 * n + 2 * m) and (new_bal1 >= 0)\
-                        and (new_bal1 <= n) and (new_bal2 <= m) and\
-                        (new_bal2 >= 0):
-                    yield from gen_n(n, m, new_pref, new_bal1,
+    if len(pref) == 2 * n + 2*m and bal1 == bal2 == 0 \
+            and count1 == n and count2 == m and norm(pref):
+        yield pref
+    else:
+        for i in ('(', ')', '[', ']'):
+            new_bal1 = bal1
+            new_bal2 = bal2
+            new_count1 = count1
+            new_count2 = count2
+            if len(pref) >= n + m:
+                new_sum_bal = sum_bal - (new_bal1 - new_bal2)
+            else:
+                new_sum_bal = n+m
+            if i == '(':
+                new_pref = pref + i
+                new_bal1 = bal1 + 1
+                new_count1 += 1
+            elif i == ')':
+                new_pref = pref + i
+                new_bal1 = bal1 - 1
+            elif i == '[':
+                new_pref = pref + i
+                new_bal2 = bal2 + 1
+                new_count2 += 1
+            else:
+                new_pref = pref + i
+                new_bal2 = bal2 - 1
+            if (len(new_pref) <= 2 * n + 2 * m) and (new_bal1 >= 0)\
+                    and (new_bal1 <= n) and (new_bal2 <= m) and\
+                    (new_bal2 >= 0):
+                yield from brackets2(n, m, new_pref, new_bal1,
                                      new_bal2, new_count1,
                                      new_count2, new_sum_bal)
-
-    return list(gen_n(n, m))
 
 
 if __name__ == "__main__":
@@ -146,6 +149,7 @@ if __name__ == "__main__":
     assert subpalindrome('abc') == 'a'
     assert subpalindrome('aaaa') == 'aaaa'
     assert subpalindrome('abaxfgf') == 'aba'
+    assert subpalindrome('fgfxaba') == 'aba'
     assert subpalindrome('abacabad') == 'abacaba'
     print("subpalindrome - OK")
 
@@ -157,6 +161,9 @@ if __name__ == "__main__":
     assert not isIPv4('')
     print('isIPv4 - OK')
 
+    it = pascals()
+    for i in range(6):
+        print(next(it))
     print("pascals - OK")
 
     assert fibonacci(1) == 1

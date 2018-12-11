@@ -8,8 +8,9 @@ def squares(a):
 
 
 def repeatntimes(elems, n):
-    for i in range(n):
-        yield from elems
+    it = itertools.tee(elems, n)
+    for i in it:
+        yield from i
 
 
 def evens(x):
@@ -51,4 +52,3 @@ if __name__ == "__main__":
 
     print(list(repeatntimes(list(squares([1,2,3])),2)))
     print(list(repeatntimes(squares([1, 2, 3]), 2)))
-    print(next(squares([1, 2, 3])))

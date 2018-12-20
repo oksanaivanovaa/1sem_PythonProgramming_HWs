@@ -20,7 +20,8 @@ class FSItem(object):
         if not self.exists():
             raise FileSystemError("File {0} does not exist".
                                   format(self.getname()))
-        elif self.getname() == newname:
+        elif self.getname() == newname or os.path.exists(
+                os.path.join(os.path.split(self.path)[0], newname)):
             raise FileSystemError("Item {0} already exists".
                                   format(newname))
         else:
@@ -32,11 +33,7 @@ class FSItem(object):
     def create(self):
         ''' Creates new item in OS
                 raise FileSystemError if item with such path already exists '''
-        if not self.exists():
-            os.makedirs(os.path.dirname(self.path), exist_ok=True)
-        else:
-            raise FileSystemError("Item {0} with such path already exists".
-                                  format(self.getname()))
+        pass
 
     def getname(self):
         ''' Returns name of current item '''
@@ -65,6 +62,9 @@ class File(FSItem):
                 raise FileSystemError if there exists directory
                  with the same path '''
         super(File, self).__init__(path)
+        if self.isdirectory():
+            raise FileSystemError("File {0} is directory!".
+                                  format(self.getname()))
 
     def __len__(self):
         ''' Returns size of file in bytes
@@ -75,9 +75,13 @@ class File(FSItem):
         else:
             return os.path.getsize(self.path)
 
-    def create_file(self):
-        self.create()
-        open(self.path, "w")
+    def create(self):
+        if not self.exists():
+            os.makedirs(os.path.dirname(self.path), exist_ok=True)
+            open(self.path, "w").close()
+        else:
+            raise FileSystemError("Item {0} with such path already exists".
+                                  format(self.getname()))
 
     def getcontent(self):
         ''' Returns list of lines in file (without trailing end-of-line)
@@ -86,7 +90,8 @@ class File(FSItem):
             raise FileSystemError("File {0} does not exist".
                                   format(self.getname()))
         else:
-            return open(self.path, 'r').read().split('\n')
+            with open(self.path, 'r') as f:
+                return f.read().split('\n'), f.close()
 
     def __iter__(self):
         ''' Returns iterator for lines of this file
@@ -106,10 +111,16 @@ class Directory(FSItem):
                 raise FileSystemError if there exists file
                 with the same path '''
         super(Directory, self).__init__(path)
+        if self.isfile():
+            raise FileSystemError("File {0} is file!".
+                                  format(self.getname()))
 
-    def create_dir(self):
-        self.create()
-        os.mkdir(self.path)
+    def create(self):
+        if not self.exists():
+            os.makedirs(self.path, exist_ok=True)
+        else:
+            raise FileSystemError("Item {0} with such path already exists".
+                                  format(self.getname()))
 
     def items(self):
         ''' Yields FSItem instances of items inside of current directory
@@ -118,7 +129,12 @@ class Directory(FSItem):
             raise FileSystemError("File {0} does not exist".
                                   format(self.getname()))
         else:
-            return os.listdir(self.path)
+            for item in os.listdir(self.path):
+                new_path = os.path.join(self.path, item)
+                if FSItem(new_path).isdirectory():
+                    yield Directory(new_path)
+                elif FSItem(new_path).isfile():
+                    yield File(new_path)
 
     def files(self):
         ''' Yields File instances of files inside of current directory
@@ -127,8 +143,7 @@ class Directory(FSItem):
             raise FileSystemError("File {0} does not exist".
                                   format(self.getname()))
         else:
-            return [f for f in self.items() if
-                    File(os.path.join(self.path, f)).isfile()]
+            yield from filter(lambda x: x.isfile(), self.items())
 
     def subdirectories(self):
         ''' Yields Directory instances of directories inside of current directory
@@ -137,7 +152,8 @@ class Directory(FSItem):
             raise FileSystemError("File {0} does not exist".
                                   format(self.getname()))
         else:
-            return next(os.walk(self.path))[1]
+            "return next(os.walk(self.path))[1]"
+            yield from filter(lambda x: x.isdirectory(), self.items())
 
     def filesrecursive(self):
         ''' Yields File instances of files inside of this directory,
@@ -147,7 +163,11 @@ class Directory(FSItem):
             raise FileSystemError("File {0} does not exist".
                                   format(self.getname()))
         else:
-            return [x[2] for x in os.walk(self.path)]
+            yield from self.files()
+            '''for file in self.files():
+                yield file'''
+            for subdir in self.subdirectories():
+                yield from subdir.filesrecursive()
 
     def getsubdirectory(self, name):
         ''' Returns Directory instance with subdirectory
@@ -157,9 +177,9 @@ class Directory(FSItem):
         if not self.exists():
             raise FileSystemError("File {0} does not exist".
                                   format(self.getname()))
-        elif name in self.items():
-            if File(os.path.join(self.path, name)).isdirectory():
-                return name
+        elif FSItem(os.path.join(self.path, name)).exists():
+            if FSItem(os.path.join(self.path, name)).isdirectory():
+                return Directory(os.path.join(self.path, name))
             else:
                 raise FileSystemError("File {0} is not directory".
                                       format(name))
@@ -170,18 +190,18 @@ class Directory(FSItem):
 
 if __name__ == '__main__':
 
-    File("baz/te1.txt").create_file()
-    File("baz/te2.txt").create_file()
-    File("baz2/te3.txt").create_file()
-    File("baz2/dir1/te4.txt").create_file()
-    File("baz/dir1/te5.txt").create_file()
-    File("baz/dir1/te6.txt").create_file()
-    File("baz/dir1/dir3/te7.txt").create_file()
-    File("baz/dir2/te8.txt").create_file()
-    File("baz/dir2/dir5/te9.txt").create_file()
-    Directory("baz3/dir1/dir3").create_dir()
-    Directory("baz3/dir2/dir4").create_dir()
-    Directory("baz3/dir2/dir5").create_dir()
+    File("baz/te1.txt").create()
+    File("baz/te2.txt").create()
+    File("baz2/te3.txt").create()
+    File("baz2/dir1/te4.txt").create()
+    File("baz/dir1/te5.txt").create()
+    File("baz/dir1/te6.txt").create()
+    File("baz/dir1/dir3/te7.txt").create()
+    File("baz/dir2/te8.txt").create()
+    File("baz/dir2/dir5/te9.txt").create()
+    Directory("baz3/dir1/dir3").create()
+    Directory("baz3/dir2/dir4").create()
+    Directory("baz3/dir2/dir5").create()
 
     path1 = File("baz/dir1/te4.txt")
 
@@ -197,8 +217,22 @@ if __name__ == '__main__':
 
     path2 = Directory("baz")
     path2.rename("baz_new")
+
+    path2 = Directory("baz_new")
     print(path2.getname())
-    print(path2.isdirectory(), path2.isfile(), path2.items(), path2.files())
-    print(path2.subdirectories())
-    print(path2.filesrecursive())
-    print(path2.getsubdirectory("dir2"))
+    print(path2.isdirectory(), path2.isfile())
+
+    print("\nItems:")
+    for item in path2.items():
+        print(item.getname())
+    print()
+    for file in path2.files():
+        print(file.getname())
+    print()
+    for item in path2.subdirectories():
+        print(item.getname())
+    print("\nFilesrecursive")
+    for item in path2.filesrecursive():
+        print(item.getname())
+
+    print("\n"+path2.getsubdirectory("dir2").getname())

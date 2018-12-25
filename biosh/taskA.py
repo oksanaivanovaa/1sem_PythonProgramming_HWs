@@ -96,7 +96,7 @@ def main(args):
                     for f in files:
                         if f.getname() == name:
                             print(f.path)
-            pass
+                            
         elif cmd == 'exit':
             print("Bye bye!")
             break

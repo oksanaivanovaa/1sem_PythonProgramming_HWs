@@ -77,7 +77,8 @@ class File(FSItem):
 
     def create(self):
         if not self.exists():
-            os.makedirs(os.path.dirname(self.path), exist_ok=True)
+            if os.path.dirname(self.path) != '':
+                os.makedirs(os.path.dirname(self.path), exist_ok=True)
             open(self.path, "w").close()
         else:
             raise FileSystemError("Item {0} with such path already exists".
@@ -91,7 +92,7 @@ class File(FSItem):
                                   format(self.getname()))
         else:
             with open(self.path, 'r') as f:
-                return f.read().split('\n'), f.close()
+                return f.readlines()
 
     def __iter__(self):
         ''' Returns iterator for lines of this file
@@ -126,7 +127,7 @@ class Directory(FSItem):
         ''' Yields FSItem instances of items inside of current directory
                 raise FileSystemError if current directory does not exists '''
         if not self.exists():
-            raise FileSystemError("File {0} does not exist".
+            raise FileSystemError("Directory {0} does not exist".
                                   format(self.getname()))
         else:
             for item in os.listdir(self.path):
@@ -174,7 +175,13 @@ class Directory(FSItem):
                 of current directory with name "name"
                 raise FileSystemError if item "name"
                 already exists and item "name" is not directory '''
-        if not self.exists():
+        if os.path.exists(os.path.join(self.path, name)) and \
+                not os.path.isdir(os.path.join(self.path, name)):
+            raise FileSystemError("{0} Item exists and is not directory".
+                                  format(os.path.join(self.path, name)))
+        else:
+            return Directory(os.path.join(self.path, name))
+        '''if not self.exists():
             raise FileSystemError("File {0} does not exist".
                                   format(self.getname()))
         elif FSItem(os.path.join(self.path, name)).exists():
@@ -185,7 +192,7 @@ class Directory(FSItem):
                                       format(name))
         else:
             raise FileSystemError("Subdirectory with name {0} does not exist".
-                                  format(name))
+                                  format(name))'''
 
 
 if __name__ == '__main__':
@@ -202,6 +209,8 @@ if __name__ == '__main__':
     Directory("baz3/dir1/dir3").create()
     Directory("baz3/dir2/dir4").create()
     Directory("baz3/dir2/dir5").create()
+    f = File('a')
+    f.create()
 
     path1 = File("baz/dir1/te4.txt")
 
@@ -236,3 +245,11 @@ if __name__ == '__main__':
         print(item.getname())
 
     print("\n"+path2.getsubdirectory("dir2").getname())
+
+    path3 = File("baz_new/dir1/te44.txt")
+    bla = path3.__iter__()
+    print(next(bla))
+
+    d = Directory('.')
+    sd = d.getsubdirectory('dirname')
+    sd.create()
